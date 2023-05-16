@@ -1,0 +1,14 @@
+venv/
+.vscode/
+assets/
+
+.idea/
+.env
+.env.nginx
+.env.test
+
+__pycache__/
+.coverage
+report.html
+
+*.pyc
