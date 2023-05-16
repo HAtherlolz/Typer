@@ -86,6 +86,18 @@ async def update_profile_instance_is_active(
     return profile.scalar_one()
 
 
+async def update_profile_password(
+        profile_id: int,
+        hashed_password: str,
+        db: AsyncSession
+) -> Profile:
+    update_pass = await db.execute(
+        update(Profile).where(Profile.id == profile_id).values(password=hashed_password).returning(Profile)
+    )
+    await db.commit()
+    return update_pass.scalar_one()
+
+
 async def delete_profile_instance(
         current_user: ProfileRetrieve,
         db: AsyncSession

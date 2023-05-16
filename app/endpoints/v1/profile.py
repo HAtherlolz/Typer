@@ -4,11 +4,12 @@ from datetime import datetime
 
 from config.database import get_session, AsyncSession
 
-from app.schemas.profile import EmailStr, ProfileCreate, ProfileRetrieve, AccessToken, JwtSchema, ProfileLogin
+from app.schemas.profile import EmailStr, ProfileCreate, ProfileRetrieve, AccessToken, JwtSchema, ProfileLogin, \
+    ProfileEmail, NewPassword
 from app.services.profile.jwt import get_current_user
 from app.services.profile.crud import (
     get_profile_list, get_profile_retrieve, create_profile,
-    confirm_profile, delete_profile, get_profiles_jwt
+    confirm_profile, delete_profile, get_profiles_jwt, send_reset_password, password_reset
 )
 
 
@@ -75,3 +76,20 @@ async def profile_delete(
         db: AsyncSession = Depends(get_session)
 ):
     return await delete_profile(current_user, db)
+
+
+@profile_router.post("/profile/send-reset-email/")
+async def send_reset_password_email(
+        background_tasks: BackgroundTasks,
+        email: ProfileEmail,
+        db: AsyncSession = Depends(get_session)
+):
+    return await send_reset_password(background_tasks, email, db)
+
+
+@profile_router.post("/profile/new-password/", response_model=ProfileRetrieve)
+async def profile_change_password(
+    passwords: NewPassword,
+    db: AsyncSession = Depends(get_session)
+):
+    return await password_reset(passwords, db)

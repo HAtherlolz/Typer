@@ -13,9 +13,13 @@ class ProfileBase(BaseModel):
         orm_mode = True
 
 
-class ProfileLogin(BaseModel):
-    """ Schema for login"""
+class ProfileEmail(BaseModel):
+    """ Email Profile schema """
     email: EmailStr
+
+
+class ProfileLogin(ProfileEmail):
+    """ Schema for login"""
     password: str
 
     @validator("password")
@@ -48,8 +52,13 @@ class ProfileUpdate(BaseModel):
     avatar: str | None
 
 
-class ConfirmAccount(BaseModel):
-    """ Schema for validation f """
+class NewPassword(BaseModel):
+    """
+        Schema for checking password in reset endpoint
+    """
+    token: str
+    password: str
+    new_password: str
 
 
 class TokenData(BaseModel):

@@ -4,19 +4,20 @@ from fastapi import HTTPException, BackgroundTasks, status
 
 from config.database import AsyncSession
 
-from app.schemas.profile import EmailStr, ProfileCreate, AccessToken, ProfileRetrieve, ProfileLogin
+from app.schemas.profile import EmailStr, ProfileCreate, AccessToken, ProfileRetrieve, ProfileLogin, ProfileEmail, \
+    NewPassword
 
 from app.models.profile import Profile
 
 from app.services.utils.utils import pagination
 from app.services.profile.jwt import get_password_hash, create_tokens, get_current_user_by_refresh_token, \
-    authenticate_user
+    authenticate_user, get_current_user
 from app.services.quries.profiles_quries import (
     get_profile_list_instances, get_profile_instance_by_id,
     check_profile_with_email_exists, create_profile_instance,
-    update_profile_instance_is_active, delete_profile_instance
+    update_profile_instance_is_active, delete_profile_instance, update_profile_password
 )
-from app.services.profile.profile import send_register_email
+from app.services.profile.profile import send_register_email, send_password_email
 
 
 async def get_profile_list(
@@ -84,3 +85,32 @@ async def delete_profile(
         db: AsyncSession
 ) -> None:
     return await delete_profile_instance(current_user, db)
+
+
+async def send_reset_password(
+        background_tasks: BackgroundTasks,
+        email: ProfileEmail,
+        db: AsyncSession
+) -> HTTPException | dict:
+    profile_check = await check_profile_with_email_exists(email.email, db)
+    if not profile_check:
+        raise HTTPException(status_code=400, detail="Profile with this email is already exist")
+    access_token, _ = create_tokens(profile_check)
+    background_tasks.add_task(send_password_email, email.email, access_token)
+    return {"message": "The email for with link to reset password successfully send"}
+
+
+async def password_reset(
+        passwords: NewPassword,
+        db: AsyncSession
+) -> Profile | HTTPException:
+    if passwords.password != passwords.new_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The passwords are different"
+        )
+    profile = await get_current_user(passwords.token)
+    if isinstance(profile, bool):
+        raise HTTPException(status_code=400, detail="Invalid token")
+    hashed_password = get_password_hash(profile.password)
+    return await update_profile_password(profile.id, hashed_password, db)
