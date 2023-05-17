@@ -59,8 +59,7 @@ async def delete_lang_instance(
         lang_id: int,
         db: AsyncSession
 ) -> None:
-    await db.delete(
-        select(Language).where(Language.id == lang_id)
-    )
+    training = await db.get(Language, lang_id)
+    await db.delete(training)
     await db.commit()
 

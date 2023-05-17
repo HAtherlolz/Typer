@@ -48,7 +48,7 @@ async def update_time_instance(
         time: TimeCreate,
         db: AsyncSession
 ) -> Time:
-    updated_time= await db.execute(
+    updated_time = await db.execute(
         update(Time).where(Time.id == time_id).values(**time.dict()).returning(Time)
     )
     await db.commit()
@@ -59,8 +59,7 @@ async def delete_time_instance(
         time_id: int,
         db: AsyncSession
 ) -> None:
-    await db.delete(
-        select(Time).where(Time.id == time_id)
-    )
+    training = await db.get(Time, time_id)
+    await db.delete(training)
     await db.commit()
 

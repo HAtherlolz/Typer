@@ -1,8 +1,8 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 
 
 class TimeBase(BaseModel):
-    """ The base language schema """
+    """ The base time schema """
     id: int
 
     class Config:
@@ -10,9 +10,10 @@ class TimeBase(BaseModel):
 
 
 class TimeCreate(BaseModel):
-    """ The schema for language creation """
+    """ The schema for time creation """
     seconds: int
 
 
 class TimeRetrieve(TimeBase, TimeCreate):
+    """ The schema for retrieve creation """
     pass
