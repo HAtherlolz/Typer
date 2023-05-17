@@ -4,8 +4,11 @@ from datetime import datetime
 
 from config.database import get_session, AsyncSession
 
-from app.schemas.profile import EmailStr, ProfileCreate, ProfileRetrieve, AccessToken, JwtSchema, ProfileLogin, \
-    ProfileEmail, NewPassword
+from app.schemas.profile import (
+    EmailStr, ProfileCreate, ProfileRetrieve, AccessToken,
+    JwtSchema, ProfileLogin, ProfileEmail, NewPassword,
+    ProfileFilters
+)
 from app.services.profile.jwt import get_current_user
 from app.services.profile.crud import (
     get_profile_list, get_profile_retrieve, create_profile,
@@ -24,13 +27,17 @@ async def profile_list(
         date_join: datetime | None = None,
         is_active: bool | None = None,
         is_admin: bool | None = None,
+        lessons: str | None = None,
+        trainings: str | None = None,
 
         page: int = 1,
         page_size: int = 10,
 
         db: AsyncSession = Depends(get_session)
 ):
-    return await get_profile_list(email, nickname, date_join, is_active, is_admin, page, page_size, db)
+    return await get_profile_list(
+        email, nickname, date_join, is_active, is_admin, lessons, trainings,  page, page_size, db
+    )
 
 
 @profile_router.get("/profile/{profile_id}/", response_model=ProfileRetrieve)

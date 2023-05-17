@@ -30,6 +30,17 @@ class ProfileLogin(ProfileEmail):
         return v
 
 
+class ProfileFilters(BaseModel):
+    """ Schema of fields for filters """
+    email: EmailStr | None = None,
+    nickname: str | None = None,
+    date_join: datetime | None = None,
+    is_active: bool | None = None,
+    is_admin: bool | None = None,
+    lessons: str | None = None,
+    trainings: str | None = None,
+
+
 class ProfileRetrieve(ProfileBase):
     """ Schema for retrieve profile fields """
     email: EmailStr

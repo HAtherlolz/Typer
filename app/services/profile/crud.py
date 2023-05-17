@@ -6,8 +6,11 @@ from app.services.files.avatar_validation import is_file_valid
 from app.services.files.files import upload_file_to_s3
 from config.database import AsyncSession
 
-from app.schemas.profile import EmailStr, ProfileCreate, AccessToken, ProfileRetrieve, ProfileLogin, ProfileEmail, \
-    NewPassword, ProfileUpdate
+from app.schemas.profile import (
+    EmailStr, ProfileCreate, AccessToken, ProfileRetrieve,
+    ProfileLogin, ProfileEmail, NewPassword, ProfileUpdate,
+    ProfileFilters
+)
 
 from app.models.profile import Profile
 
@@ -30,13 +33,20 @@ async def get_profile_list(
         is_active: bool | None,
         is_admin: bool | None,
 
+        lessons: str | None,
+        trainings: str | None,
+
         page: int,
         page_size: int,
 
         db: AsyncSession
 ) -> list[Profile]:
+    filters = ProfileFilters(
+        email=email, nickname=nickname, date_join=date_join, is_active=is_active,
+        is_admin=is_admin, lessons=lessons, trainings=trainings
+    )
     offset = await pagination(page, page_size)
-    return await get_profile_list_instances(email, nickname, date_join, is_active, is_admin, offset, page_size, db)
+    return await get_profile_list_instances(filters, offset, page_size, db)
 
 
 async def get_profile_retrieve(profile_id: int, db: AsyncSession) -> Profile:
