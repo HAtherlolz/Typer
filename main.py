@@ -7,7 +7,7 @@ from config.conf import settings
 from config.database import engine
 
 from app.endpoints.routers import api_router
-# from app.endpoints import admins_models
+from app.endpoints.admin import admins_models
 
 app = FastAPI(
     openapi_url="/api/v1/",
@@ -32,7 +32,7 @@ app.include_router(api_router)
 
 # Include admin panel
 
-# admin = Admin(app, engine, "/api/v1/admin/")
+admin = Admin(app, engine, "/api/v1/admin/")
 
-# for view in admins_models:
-#     admin.add_view(view)
+for view in admins_models:
+    admin.add_view(view)
