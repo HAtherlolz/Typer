@@ -41,6 +41,12 @@ class Settings(BaseSettings):
     ALGORITHM: str = os.getenv("ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
+    BUCKET_DOMAIN: str = os.getenv("BUCKET_DOMAIN")
+    AWS_STORAGE_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME")
+    AWS_BUCKET_REGION: str = os.getenv("AWS_BUCKET_REGION")
+    AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY")
+
     # Allowed hosts
     BACKEND_CORS_ORIGINS: list = [
         "http://localhost",

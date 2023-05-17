@@ -1,11 +1,13 @@
 from datetime import datetime
 
-from fastapi import HTTPException, BackgroundTasks, status
+from fastapi import HTTPException, BackgroundTasks, status, UploadFile
 
+from app.services.files.avatar_validation import is_file_valid
+from app.services.files.files import upload_file_to_s3
 from config.database import AsyncSession
 
 from app.schemas.profile import EmailStr, ProfileCreate, AccessToken, ProfileRetrieve, ProfileLogin, ProfileEmail, \
-    NewPassword
+    NewPassword, ProfileUpdate
 
 from app.models.profile import Profile
 
@@ -15,7 +17,8 @@ from app.services.profile.jwt import get_password_hash, create_tokens, get_curre
 from app.services.quries.profiles_quries import (
     get_profile_list_instances, get_profile_instance_by_id,
     check_profile_with_email_exists, create_profile_instance,
-    update_profile_instance_is_active, delete_profile_instance, update_profile_password
+    update_profile_instance_is_active, delete_profile_instance,
+    update_profile_password, update_profile_instance
 )
 from app.services.profile.profile import send_register_email, send_password_email
 
@@ -56,6 +59,25 @@ async def create_profile(
     tokens = await create_tokens(created_profile)
     background_tasks.add_task(send_register_email, created_profile.email, tokens.access_token)
     return created_profile
+
+
+async def update_profile(
+        avatar: UploadFile,
+        nickname: str | None,
+        current_user: ProfileRetrieve,
+        db: AsyncSession
+) -> Profile:
+    if avatar:
+        is_avatar_valid = await is_file_valid(avatar)
+        if not is_avatar_valid:
+            raise HTTPException(status_code=400, detail="Avatar is not valid")
+        file_name = avatar.filename.split('.')
+        image_path = 'profile/avatars/' + f'user_{current_user.id}/' + file_name[0][:10] + '.' + file_name[1]
+        avatar_path = await upload_file_to_s3(avatar, image_path)
+    else:
+        avatar_path = None
+    profile_validation = ProfileUpdate(avatar=avatar_path, nickname=nickname)
+    return await update_profile_instance(profile_validation, current_user, db)
 
 
 async def confirm_profile(

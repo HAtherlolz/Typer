@@ -2,7 +2,7 @@ from datetime import datetime
 
 from config.database import AsyncSession
 
-from app.schemas.profile import EmailStr, ProfileCreate, ProfileRetrieve
+from app.schemas.profile import EmailStr, ProfileCreate, ProfileRetrieve, ProfileUpdate
 
 from app.models.profile import Profile
 from sqlalchemy import select, update
@@ -96,6 +96,20 @@ async def update_profile_password(
     )
     await db.commit()
     return update_pass.scalar_one()
+
+
+async def update_profile_instance(
+        profile: ProfileUpdate,
+        current_user: ProfileRetrieve,
+        db: AsyncSession
+) -> Profile:
+    updated_profile = await db.execute(
+        update(Profile).where(
+            Profile.id == current_user.id
+        ).values(**profile.dict(exclude_none=True)).returning(Profile)
+    )
+    await db.commit()
+    return updated_profile.scalar_one()
 
 
 async def delete_profile_instance(

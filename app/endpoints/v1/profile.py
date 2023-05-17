@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends, BackgroundTasks, File, UploadFile, Form
 
 from datetime import datetime
 
@@ -9,7 +9,8 @@ from app.schemas.profile import EmailStr, ProfileCreate, ProfileRetrieve, Access
 from app.services.profile.jwt import get_current_user
 from app.services.profile.crud import (
     get_profile_list, get_profile_retrieve, create_profile,
-    confirm_profile, delete_profile, get_profiles_jwt, send_reset_password, password_reset
+    confirm_profile, delete_profile, get_profiles_jwt,
+    send_reset_password, password_reset, update_profile
 )
 
 
@@ -68,6 +69,16 @@ async def profile_tokens(
 @profile_router.get("/me/", response_model=ProfileRetrieve, status_code=200)
 async def me(profile: ProfileRetrieve = Depends(get_current_user)):
     return profile
+
+
+@profile_router.patch("/profile/update/", response_model=ProfileRetrieve, status_code=201)
+async def profile_update(
+        avatar: UploadFile = File(default=None),
+        nickname: str = Form(default=None, max_length=15, min_length=3),
+        current_user: ProfileRetrieve = Depends(get_current_user),
+        db: AsyncSession = Depends(get_session)
+):
+    return await update_profile(avatar, nickname, current_user, db)
 
 
 @profile_router.delete("/profile/delete/", status_code=204)
