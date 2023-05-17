@@ -29,6 +29,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
+async def admin_permission(token: str = Depends(oauth2_scheme)):
+    """ Admin Permission """
+    profile = await get_current_user(token)
+    if not profile.is_admin:
+        raise HTTPException(status_code=403, detail="No permissions to update profile")
+
+
 async def authenticate_user(email: str, password: str, db: AsyncSession) -> Profile | str:
     profile = await check_profile_with_email_exists(email, db)
     if not profile:
@@ -41,7 +48,6 @@ async def authenticate_user(email: str, password: str, db: AsyncSession) -> Prof
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> Profile:
-    print(token)
     async with async_session() as db:
         return await get_user_instance(token, db)
 

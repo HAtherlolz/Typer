@@ -48,6 +48,7 @@ class ProfileRetrieve(ProfileBase):
     avatar: str | None
     date_joined: datetime
     is_active: bool
+    is_admin: bool
 
 
 class ProfileCreate(ProfileLogin):
