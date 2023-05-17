@@ -94,7 +94,7 @@ async def send_reset_password(
 ) -> HTTPException | dict:
     profile_check = await check_profile_with_email_exists(email.email, db)
     if not profile_check:
-        raise HTTPException(status_code=400, detail="Profile with this email is already exist")
+        raise HTTPException(status_code=400, detail="Profile with this email does not exist")
     access_token, _ = create_tokens(profile_check)
     background_tasks.add_task(send_password_email, email.email, access_token)
     return {"message": "The email for with link to reset password successfully send"}
@@ -104,13 +104,8 @@ async def password_reset(
         passwords: NewPassword,
         db: AsyncSession
 ) -> Profile | HTTPException:
-    if passwords.password != passwords.new_password:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The passwords are different"
-        )
     profile = await get_current_user(passwords.token)
     if isinstance(profile, bool):
         raise HTTPException(status_code=400, detail="Invalid token")
-    hashed_password = get_password_hash(profile.password)
+    hashed_password = get_password_hash(passwords.password)
     return await update_profile_password(profile.id, hashed_password, db)

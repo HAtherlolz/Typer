@@ -58,7 +58,6 @@ class NewPassword(BaseModel):
     """
     token: str
     password: str
-    new_password: str
 
 
 class TokenData(BaseModel):
