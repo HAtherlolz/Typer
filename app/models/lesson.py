@@ -15,7 +15,7 @@ class Lesson(Base):
     )
     name: Mapped[str] = mapped_column("name", String(50), nullable=False)
     text: Mapped[str] = mapped_column("text", Text(), nullable=True)
-    seconds_spent: Mapped[int] = mapped_column("seconds", Integer(), nullable=False)
+    # seconds_spent: Mapped[int] = mapped_column("seconds_spent", Integer(), nullable=False)
 
     wpm: Mapped[float] = mapped_column("wpm", Float(), nullable=False, index=True)
     cpm: Mapped[float] = mapped_column("cpm", Float(), nullable=False, index=True)
@@ -25,16 +25,22 @@ class Lesson(Base):
 
     date_time: Mapped[datetime] = mapped_column("date_time", DateTime, default=datetime.utcnow)
 
-    profile_id: Mapped[int] = mapped_column(
-        "profile_id", ForeignKey("profiles.id"), nullable=False
-    )
+    # profile_id: Mapped[int] = mapped_column(
+    #     "profile_id", ForeignKey("profiles.id"), nullable=False
+    # )
 
     language_id: Mapped[int] = mapped_column(
         "language_id", ForeignKey("languages.id"), nullable=False
     )
 
-    profile: Mapped["Profile"] = relationship(
-        "Profile", back_populates="profile_lessons"
+    # profile: Mapped["Profile"] = relationship(
+    #     "Profile", back_populates="profile_lessons"
+    # )
+    lesson_profiles: Mapped[list["Profile"]] = relationship(
+        'Profile',
+        secondary='profile_lesson',
+        back_populates='profile_lessons',
+        passive_deletes=True,
     )
 
     language: Mapped["Language"] = relationship(

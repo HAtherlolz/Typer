@@ -6,9 +6,10 @@ from config.database import AsyncSession
 
 from app.schemas.profile import ProfileFilters, ProfileCreate, ProfileRetrieve, ProfileUpdate
 
-from app.models.profile import Profile
+from app.models.profile import Profile, profile_lesson_association
 from app.models.lesson import Lesson
 from app.models.training import Training
+from app.models.language import Language
 
 from sqlalchemy import select, update
 
@@ -66,7 +67,10 @@ async def get_profile_list_instances(
 
 async def get_profile_instance_by_id(profile_id: int, db: AsyncSession) -> Profile | None:
     profile = await db.execute(
-        select(Profile).where(Profile.id == profile_id)
+        select(Profile, Lesson).options(
+            selectinload(Profile.profile_lessons),
+            selectinload(Lesson.language),
+        ).where(Profile.id == profile_id)
     )
     return profile.scalar_one_or_none()
 

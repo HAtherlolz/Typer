@@ -4,6 +4,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, validator
 
+from app.schemas.lesson import LessonProfile
+
 
 class ProfileBase(BaseModel):
     """ The base schema of profile """
@@ -49,6 +51,9 @@ class ProfileRetrieve(ProfileBase):
     date_joined: datetime
     is_active: bool
     is_admin: bool
+
+    profile_lessons: list[LessonProfile]
+
 
 
 class ProfileCreate(ProfileLogin):

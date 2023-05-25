@@ -40,7 +40,7 @@ async def profile_list(
     )
 
 
-@profile_router.get("/profile/{profile_id}/", response_model=ProfileRetrieve)
+@profile_router.get("/profile/{profile_id}/")
 async def profile_retrieve(
         profile_id: int,
         db: AsyncSession = Depends(get_session)

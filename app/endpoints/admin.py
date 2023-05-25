@@ -33,7 +33,7 @@ class LessonAdmin(ModelView, model=Lesson):
     icon = "fa-solid fa-address-book"
     column_list = [Lesson.id, Lesson.name, Lesson.language]
     column_searchable_list = [
-        Lesson.id, Lesson.name, Lesson.seconds_spent, Lesson.wpm, Lesson.cpm,
+        Lesson.id, Lesson.name, Lesson.wpm, Lesson.cpm,
         Lesson.row_wpm, Lesson.accuracy, Lesson.consistency,
         Lesson.date_time
     ]

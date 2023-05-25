@@ -13,10 +13,10 @@ class Language(Base):
     )
     name: Mapped[str] = mapped_column("name", String(50), nullable=False)
 
-    lessons_languages: Mapped["Lesson"] = relationship(
+    lessons_languages: Mapped[list["Lesson"]] = relationship(
         "Lesson", back_populates="language"
     )
 
-    trainings_languages: Mapped["Training"] = relationship(
+    trainings_languages: Mapped[list["Training"]] = relationship(
         "Training", back_populates="training_language"
     )
