@@ -40,9 +40,14 @@ class LessonAdmin(ModelView, model=Lesson):
 
 
 class TrainingAdmin(ModelView, model=Training):
+
+    def profile_formatter(self, profile):
+        return profile.email
+
     name = "Training"
     name_plural = "Trainings"
     icon = "fa-solid fa-sitemap"
+    column_formatters = {Training.profile: profile_formatter}
     column_list = [Training.id, Training.profile, Training.training_language]
     column_searchable_list = [
         Training.id, Training.wpm, Training.cpm,
