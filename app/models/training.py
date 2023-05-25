@@ -32,7 +32,7 @@ class Training(Base):
         "time_id", ForeignKey("times.id"), nullable=False
     )
 
-    profile: Mapped["Profile"] = relationship(
+    profiles: Mapped["Profile"] = relationship(
         "Profile", back_populates="profile_trainings"
     )
 

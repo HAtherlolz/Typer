@@ -7,7 +7,7 @@ from config.database import get_session, AsyncSession
 from app.schemas.profile import (
     EmailStr, ProfileCreate, ProfileRetrieve, AccessToken,
     JwtSchema, ProfileLogin, ProfileEmail, NewPassword,
-    ProfileFilters
+    ProfileFilters, ProfileRetrieveMe
 )
 from app.services.profile.jwt import get_current_user
 from app.services.profile.crud import (
@@ -40,7 +40,7 @@ async def profile_list(
     )
 
 
-@profile_router.get("/profile/{profile_id}/")
+@profile_router.get("/profile/{profile_id}/", response_model=ProfileRetrieveMe)
 async def profile_retrieve(
         profile_id: int,
         db: AsyncSession = Depends(get_session)

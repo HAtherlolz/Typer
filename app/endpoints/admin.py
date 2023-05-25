@@ -43,7 +43,7 @@ class TrainingAdmin(ModelView, model=Training):
     name = "Training"
     name_plural = "Trainings"
     icon = "fa-solid fa-sitemap"
-    column_list = [Training.id, Training.profile, Training.training_language]
+    column_list = [Training.id, Training.profiles, Training.training_language]
     column_searchable_list = [
         Training.id, Training.wpm, Training.cpm,
         Training.row_wpm, Training.accuracy, Training.consistency,

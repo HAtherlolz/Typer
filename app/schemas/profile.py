@@ -1,10 +1,13 @@
 import re
 
+from typing import Any
+
 from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, validator
 
 from app.schemas.lesson import LessonProfile
+from app.schemas.training import TrainingProfileRetrieve
 
 
 class ProfileBase(BaseModel):
@@ -52,8 +55,11 @@ class ProfileRetrieve(ProfileBase):
     is_active: bool
     is_admin: bool
 
-    profile_lessons: list[LessonProfile]
 
+class ProfileRetrieveMe(ProfileRetrieve):
+    """ Schema for retrieve me profile fields with lessons and trainings """
+    profile_lessons: list[LessonProfile] = []
+    profile_trainings: list[TrainingProfileRetrieve] = []
 
 
 class ProfileCreate(ProfileLogin):

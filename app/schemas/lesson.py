@@ -54,6 +54,15 @@ class LessonFilters(BaseModel):
     time_id: int | None
 
 
+class LessonInfo(BaseModel):
+    """ Lesson info """
+    seconds_spent: int
+    is_done: bool
+
+    class Config:
+        orm_mode = True
+
+
 class LessonProfile(LessonBase):
     wpm: float
     cpm: float
@@ -63,5 +72,6 @@ class LessonProfile(LessonBase):
     date_time: datetime
 
     language: LanguageRetrieve
-    seconds_spent: int
-    is_done: bool
+    lesson_info: LessonInfo
+
+

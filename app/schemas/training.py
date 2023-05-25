@@ -1,8 +1,7 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, EmailStr
 
 from datetime import datetime
 
-from app.schemas.profile import ProfileRetrieve
 from app.schemas.language import LanguageRetrieve
 from app.schemas.time import TimeRetrieve
 
@@ -56,16 +55,34 @@ class TrainingFilters(BaseModel):
     time_id: int | None
 
 
-class TrainingRetrieve(TrainingBase):
-    """ The training retrieve schema """
+class TrainingProfileRetrieve(TrainingBase):
+    """ Schema to return trainings for profile """
     wpm: float
     cpm: float
     row_wpm: float
     accuracy: int
     consistency: int
     date_time: datetime
-
-    profile: ProfileRetrieve
     training_language: LanguageRetrieve
     time: TimeRetrieve
+
+
+class ProfileRetrieve(BaseModel):
+    """ Schema for retrieve profile fields """
+    id: int
+    email: EmailStr
+    nickname: str
+    avatar: str | None
+    date_joined: datetime
+    is_active: bool
+    is_admin: bool
+
+    class Config:
+        orm_mode = True
+
+
+class TrainingRetrieve(TrainingProfileRetrieve):
+    """ The training retrieve schema """
+    profiles: ProfileRetrieve
+
 

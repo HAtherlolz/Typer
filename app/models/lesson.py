@@ -25,22 +25,21 @@ class Lesson(Base):
 
     date_time: Mapped[datetime] = mapped_column("date_time", DateTime, default=datetime.utcnow)
 
-    # profile_id: Mapped[int] = mapped_column(
-    #     "profile_id", ForeignKey("profiles.id"), nullable=False
-    # )
-
     language_id: Mapped[int] = mapped_column(
         "language_id", ForeignKey("languages.id"), nullable=False
     )
 
-    # profile: Mapped["Profile"] = relationship(
-    #     "Profile", back_populates="profile_lessons"
-    # )
     lesson_profiles: Mapped[list["Profile"]] = relationship(
         'Profile',
-        secondary='profile_lesson',
+        secondary="profile_lesson",
         back_populates='profile_lessons',
         passive_deletes=True,
+    )
+
+    lesson_info: Mapped["ProfileLessonAssociation"] = relationship(
+        'ProfileLessonAssociation',
+        passive_deletes=True,
+        overlaps="lesson_profiles,profile_lessons"
     )
 
     language: Mapped["Language"] = relationship(

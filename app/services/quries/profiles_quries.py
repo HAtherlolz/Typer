@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, subqueryload, joinedload, join
 
 from config.database import AsyncSession
 
 from app.schemas.profile import ProfileFilters, ProfileCreate, ProfileRetrieve, ProfileUpdate
 
-from app.models.profile import Profile, profile_lesson_association
+from app.models.profile import Profile, ProfileLessonAssociation
 from app.models.lesson import Lesson
 from app.models.training import Training
 from app.models.language import Language
@@ -26,7 +26,6 @@ async def check_profile_with_email_exists(
 
 async def get_profile_by_email_password(
         email: str,
-        password: str,
         db: AsyncSession
 ) -> Profile | None:
     profile = await db.execute(
@@ -66,13 +65,62 @@ async def get_profile_list_instances(
 
 
 async def get_profile_instance_by_id(profile_id: int, db: AsyncSession) -> Profile | None:
+    # profile = await db.execute(
+    #     select(Profile).options(
+    #         selectinload(
+    #             Profile.lesson
+    #         ).joinedload(
+    #             ProfileLessonAssociation.lesson
+    #         ).selectinload(
+    #             Lesson.language
+    #         )
+    #     ).where(Profile.id == profile_id)
+    # )
+
     profile = await db.execute(
-        select(Profile, Lesson).options(
-            selectinload(Profile.profile_lessons),
-            selectinload(Lesson.language),
-        ).where(Profile.id == profile_id)
+        select(Profile).options(
+            selectinload(Profile.profile_lessons).options(
+                selectinload(Lesson.language),
+                selectinload(Lesson.lesson_info)
+            ),
+            selectinload(Profile.profile_trainings).options(
+                selectinload(Training.training_language),
+                selectinload(Training.time)
+            )
+        )
     )
-    return profile.scalar_one_or_none()
+
+    profile = profile.scalar_one_or_none()
+    # print(profile.is_done)
+
+    # if profile:
+    #     profile.profile_lessons = await db.execute(
+    #         select(profile_lesson_association.c.seconds_spent, profile_lesson_association.c.is_done)
+    #         .join(
+    #             profile_lesson_association,  # Use the association object directly
+    #             Lesson.id == profile_lesson_association.c.lesson_id  # Specify the join condition
+    #         )
+    #         .where(
+    #             profile_lesson_association.c.profile_id == profile_id
+    #         ).distinct()
+    #     )
+    #     profile.profile_lessons = profile.profile_lessons.scalars().all()
+
+    return profile
+
+
+def process_result(profiles_lessons_languages):
+    transformed_result = []
+    for profile, lesson, language in profiles_lessons_languages:
+        lesson_data = {column.name: getattr(lesson, column.name) for column in Lesson.__table__.columns}
+        lesson_data["language"] = {column.name: getattr(language, column.name) for column in Language.__table__.columns}
+        transformed_result.append(lesson_data)
+
+    return transformed_result
+
+    # res = profile.scalar_one_or_none()
+    # # print("===================", res.seconds_spent)
+    # return res
 
 
 async def create_profile_instance(
