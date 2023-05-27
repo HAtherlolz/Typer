@@ -73,9 +73,6 @@ class ProfileRetrieve(BaseModel):
     email: EmailStr
     nickname: str
     avatar: str | None
-    date_joined: datetime
-    is_active: bool
-    is_admin: bool
 
     class Config:
         orm_mode = True

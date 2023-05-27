@@ -111,3 +111,12 @@ async def profile_change_password(
     db: AsyncSession = Depends(get_session)
 ):
     return await password_reset(passwords, db)
+
+
+@profile_router.post("/profile/add-lesson/")
+async def profile_add_lesson(
+        # TODO Implement
+        current_user: ProfileRetrieve = Depends(get_current_user),
+        db: AsyncSession = Depends(get_session)
+):
+    pass

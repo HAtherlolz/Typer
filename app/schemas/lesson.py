@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, EmailStr
 
 from datetime import datetime
 
@@ -15,15 +15,13 @@ class LessonBase(BaseModel):
 
 class LessonCreate(BaseModel):
     """ The training creating schema """
+    name: str
     wpm: float
     cpm: float
     row_wpm: float
     accuracy: int
     consistency: int
-
-    profile_id: int | None
     language_id: int
-    time_id: int
 
     @validator("accuracy")
     def accuracy_validator(cls, v: int) -> int:
@@ -40,8 +38,9 @@ class LessonCreate(BaseModel):
 
 class LessonFilters(BaseModel):
     """
-        The training fields for filtering schema
+        The lesson fields for filtering schema
     """
+    name: str
     wpm: float | None
     cpm: float | None
     row_wpm: float | None
@@ -51,7 +50,6 @@ class LessonFilters(BaseModel):
 
     profile_id: int | None
     language_id: int | None
-    time_id: int | None
 
 
 class LessonInfo(BaseModel):
@@ -63,15 +61,34 @@ class LessonInfo(BaseModel):
         orm_mode = True
 
 
-class LessonProfile(LessonBase):
+class LessonRetrieve(BaseModel):
+    """ The lessons schema for getting data """
+    name: str
     wpm: float
     cpm: float
     row_wpm: float
     accuracy: int
     consistency: int
     date_time: datetime
-
     language: LanguageRetrieve
+
+
+class LessonProfile(LessonRetrieve):
+    """ The lesson schema for profile """
     lesson_info: LessonInfo
 
+
+class ProfileRetrieve(BaseModel):
+    """ Schema for retrieve profile fields """
+    id: int
+    email: EmailStr
+    nickname: str
+    avatar: str | None
+
+    class Config:
+        orm_mode = True
+
+
+class LessonWithProfile(LessonRetrieve):
+    lesson_profiles: ProfileRetrieve
 

@@ -67,7 +67,6 @@ async def get_user_instance(token: str, db: AsyncSession):
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-        print(email)
         token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
