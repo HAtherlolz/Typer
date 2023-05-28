@@ -83,6 +83,16 @@ class NewPassword(BaseModel):
     password: str
 
 
+class ProfileLessonAssociationPost(BaseModel):
+    language_id: int
+    seconds_spent: int
+    is_done: bool
+
+
+class ProfileLessonAssociationSchema(ProfileLessonAssociationPost):
+    profile_id: int
+
+
 class TokenData(BaseModel):
     email: str
 

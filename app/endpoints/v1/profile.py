@@ -7,13 +7,14 @@ from config.database import get_session, AsyncSession
 from app.schemas.profile import (
     EmailStr, ProfileCreate, ProfileRetrieve, AccessToken,
     JwtSchema, ProfileLogin, ProfileEmail, NewPassword,
-    ProfileFilters, ProfileRetrieveMe
+    ProfileFilters, ProfileRetrieveMe, ProfileLessonAssociationPost
 )
 from app.services.profile.jwt import get_current_user
 from app.services.profile.crud import (
     get_profile_list, get_profile_retrieve, create_profile,
     confirm_profile, delete_profile, get_profiles_jwt,
-    send_reset_password, password_reset, update_profile
+    send_reset_password, password_reset, update_profile,
+    add_lesson_to_profile
 )
 
 
@@ -115,8 +116,12 @@ async def profile_change_password(
 
 @profile_router.post("/profile/add-lesson/")
 async def profile_add_lesson(
-        # TODO Implement
+        data: ProfileLessonAssociationPost,
         current_user: ProfileRetrieve = Depends(get_current_user),
         db: AsyncSession = Depends(get_session)
 ):
-    pass
+    return await add_lesson_to_profile(data, current_user, db)
+
+# TODO
+#  1) Implement Update lesson
+#  2) Implement return all data in response (add relation to model ProfLessAssociation)

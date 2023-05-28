@@ -9,7 +9,7 @@ from config.database import AsyncSession
 from app.schemas.profile import (
     EmailStr, ProfileCreate, AccessToken, ProfileRetrieve,
     ProfileLogin, ProfileEmail, NewPassword, ProfileUpdate,
-    ProfileFilters
+    ProfileFilters, ProfileLessonAssociationPost, ProfileLessonAssociationSchema
 )
 
 from app.models.profile import Profile
@@ -21,7 +21,8 @@ from app.services.quries.profiles_quries import (
     get_profile_list_instances, get_profile_instance_by_id,
     check_profile_with_email_exists, create_profile_instance,
     update_profile_instance_is_active, delete_profile_instance,
-    update_profile_password, update_profile_instance
+    update_profile_password, update_profile_instance, add_lesson_to_profile_instance,
+    check_lesson_in_profile_exists
 )
 from app.services.profile.profile import send_register_email, send_password_email
 
@@ -141,3 +142,18 @@ async def password_reset(
         raise HTTPException(status_code=400, detail="Invalid token")
     hashed_password = get_password_hash(passwords.password)
     return await update_profile_password(profile.id, hashed_password, db)
+
+
+async def add_lesson_to_profile(
+        data: ProfileLessonAssociationPost,
+        current_user: ProfileRetrieve,
+        db: AsyncSession
+):
+    new_add = ProfileLessonAssociationSchema(
+        language_id=data.language_id, seconds_spent=data.seconds_spent,
+        is_done=data.is_done, profile_id=current_user.id
+    )
+    check_lesson_profile_exists = await check_lesson_in_profile_exists(current_user.id, data.language_id, db)
+    if check_lesson_profile_exists:
+        raise HTTPException(status_code=400, detail="The profile is already has lesson with this id")
+    return await add_lesson_to_profile_instance(new_add, db)

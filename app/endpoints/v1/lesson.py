@@ -6,13 +6,14 @@ from config.database import AsyncSession, get_session
 
 from app.schemas.lesson import (
     LessonRetrieve, LessonFilters, LessonWithProfile,
-    LessonCreate
+    LessonCreate, ProfileRetrieve
 )
 from app.services.lesson.crud import (
     get_lessons_list, get_lesson, lesson_create,
     lesson_update, lesson_delete
 )
 
+from app.services.profile.jwt import admin_permission
 
 lesson_router = APIRouter()
 
@@ -53,8 +54,8 @@ async def get_retrieve(
 @lesson_router.post("/lesson/create/", response_model=LessonRetrieve)
 async def create_lesson(
         lesson: LessonCreate,
-        db: AsyncSession = Depends(get_session)
-        # TODO: Permissions Admin
+        db: AsyncSession = Depends(get_session),
+        admin: ProfileRetrieve = Depends(admin_permission)
 ):
     return await lesson_create(lesson, db)
 
@@ -63,8 +64,8 @@ async def create_lesson(
 async def update_lesson(
         lesson_id: int,
         lesson: LessonCreate,
-        db: AsyncSession = Depends(get_session)
-        # TODO: Permissions Admin, CHECK SCHEMA
+        db: AsyncSession = Depends(get_session),
+        admin: ProfileRetrieve = Depends(admin_permission)
 ):
     return await lesson_update(lesson_id, lesson, db)
 
@@ -72,7 +73,7 @@ async def update_lesson(
 @lesson_router.delete("/lesson/{lesson_id}/delete/", status_code=204)
 async def delete_lesson(
         lesson_id: int,
-        db: AsyncSession = Depends(get_session)
-        # TODO: Permissions Admin
+        db: AsyncSession = Depends(get_session),
+        admin: ProfileRetrieve = Depends(admin_permission)
 ):
     return await lesson_delete(lesson_id, db)

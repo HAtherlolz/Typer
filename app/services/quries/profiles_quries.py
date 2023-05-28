@@ -4,7 +4,10 @@ from sqlalchemy.orm import selectinload, subqueryload, joinedload, join
 
 from config.database import AsyncSession
 
-from app.schemas.profile import ProfileFilters, ProfileCreate, ProfileRetrieve, ProfileUpdate
+from app.schemas.profile import (
+    ProfileFilters, ProfileCreate, ProfileRetrieve,
+    ProfileUpdate, ProfileLessonAssociationSchema
+)
 
 from app.models.profile import Profile, ProfileLessonAssociation
 from app.models.lesson import Lesson
@@ -138,3 +141,29 @@ async def delete_profile_instance(
 ) -> None:
     await db.delete(current_user)
     await db.commit()
+
+
+async def check_lesson_in_profile_exists(
+        profile_id: int,
+        lesson_id: int,
+        db: AsyncSession
+) -> ProfileLessonAssociation | None:
+    prof_lesson = await db.execute(
+        select(ProfileLessonAssociation).where(
+            ProfileLessonAssociation.profile_id == profile_id
+        ).where(
+            ProfileLessonAssociation.lesson_id == lesson_id
+        )
+    )
+    return prof_lesson.scalar_one_or_none()
+
+
+async def add_lesson_to_profile_instance(
+        data: ProfileLessonAssociationSchema,
+        db: AsyncSession
+) -> ProfileLessonAssociation:
+    new_lesson_in_profile = ProfileLessonAssociation(**data.dict())
+    db.add(new_lesson_in_profile)
+    await db.commit()
+    await db.refresh(new_lesson_in_profile)
+    return new_lesson_in_profile
